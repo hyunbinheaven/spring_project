@@ -1,0 +1,40 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MainMapper">
+
+	<!-- 리뷰 개수가 50개 이상인 식당의 rst_id를 선택하여 rst 테이블과 조인하고 해당 식당 정보를 가져옴.
+		평균 별점 내림차순 정렬하여 상위 10개의 식당. -->
+	<select id="top10Rst" resultType="MainDTO">
+	    SELECT
+	        rst.rst_id,
+	        rst.rst_name,
+	        rst.rst_addr1,
+	        rst.rst_cate,
+	        rst.rev_star_avg,
+	        p.uploadFilePath AS photoUploadFilePath,
+	        p.uploadFileName AS photoUploadFileName,
+	        rids.rev_count
+	    FROM (
+	        SELECT rev.rst_id, COUNT(*) AS rev_count
+	        FROM review rev
+	        GROUP BY rev.rst_id
+	        HAVING COUNT(*) >= 50
+	    ) rids
+	    JOIN restaurant rst ON rids.rst_id = rst.rst_id
+	    LEFT JOIN (
+	        SELECT rev_no, uploadFilePath, uploadFileName
+	        FROM upload
+	    ) p ON rids.rst_id = p.rev_no
+	    WHERE ROWNUM <![CDATA[<]]>= 10
+	    ORDER BY rst.rev_star_avg DESC,8 desc
+	</select>
+
+	<!-- 주어진 식당 id와 일치하는 리뷰 개수 count -->
+	<select id="getRevCountByRestaurantId" resultType="int">
+	    SELECT COUNT(*) AS rev_count
+	    FROM review
+	    WHERE rst_id = #{rst_id}
+	</select>
+</mapper>

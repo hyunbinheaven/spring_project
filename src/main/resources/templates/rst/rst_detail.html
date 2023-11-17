@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<!-- 공통적으로 들어가는 부분 가져오는 코드 -->
+<head th:insert="~{include/head.html}"></head>
+
+<!-- 타이틀 수정 및 자기 html의 head에 추가한 것 타임리프 형식으로 추가하기 -->
+<!-- 예시: <link th:href="@{/css/header.css}" rel="stylesheet" />
+    -->
+<title>먹스플로어</title>
+<link th:href="@{/css/rst_detail.css}" rel="stylesheet" />
+<script type="text/javascript" th:src="@{/js/rst_detail.js}"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+</head>
+<body>
+	<!-- Navigation -->
+	<nav th:insert="~{include/nav.html}"></nav>
+	<div class="contentbox">
+		<div id="backgroundbanner"></div>
+		<div id="bodycontent" class="bodycontent">
+
+		<input type="hidden" th:value="${rst_id}" id="rst_id" >
+		<input type="hidden" id="isLiked" th:value="${isLiked}" >
+		<input type="hidden" id="likes_total" th:value="${likes_total}" >
+		<input type="hidden" id="user_email" th:value="${user_email}" >
+			<div class="maincontent">
+				
+				<div class="historyback">
+					<table>
+						<th>
+							<td>
+								<a href="javascript:history.back()"><img th:src="@{/images/previous.svg}" alt="이미지" style="width: 50px;"></a>
+							</td>
+						</th>
+					</table>
+					
+					
+				</div>
+
+
+				<div class="photos">
+					<ul th:if="${thumbnails != null and thumbnails.size() > 0}">
+						
+						<li th:each="thumbnail, i : ${thumbnails}" 
+							th:name="'thumbnail' + ${i.index}"
+							th:id="'thumbnail' + ${i.index}">
+							<img th:src="${thumbnail.uploadFilePath}" alt="식당사진" style="height: 300px;">
+						</li>
+					</ul>
+				</div>
+
+				<h2 th:text="${rst_name}"></h2>
+				<div class="rst_cate" th:text="${rst_cate}"></div>
+				<div class="box">
+					<div class="evaluation">
+						<!-- <div id="rev_count">11명의 평가</div> -->
+						<div id="score">[[${rev_all_star_avg}]]점</div>
+						<div class="star_box">
+							<div class="rating">
+								★★★★★ <span class="rating_star"
+									th:style="'width: ' + (${rev_all_star_avg} * 20) + '% !important;'">★★★★★</span>
+								<input type="range" value="1" step="1" min="0" max="10">
+							</div>
+						</div>
+					</div>
+					<div class="rstbtn">
+						<button class="btnlikes">
+							<img th:src="@{/images/star_empty.png}" alt="star_empty"
+								style="height: 22px; margin-bottom: 4px;">
+							<!-- <img th:src="@{/images/star_full.png}" alt="star_full" style="height: 22px; margin-bottom: 4px;">
+                            -->
+							즐겨찾기 (<span id="likes_total" th:if="${likesTotal.isEmpty()}"> 0</span>
+									<span th:each="likesTotal : ${likesTotal}" th:text="${likesTotal.likes_total}"></span>
+								   )
+						</button>
+						
+					</div>
+				</div>
+				<hr>
+				<div class="rst_detail">
+					<div class="location">
+						<img th:src="@{/images/location.png}" alt="location"
+							style="height: 31px; margin-right: 6px;">
+						<div id="locaInfo">
+							<span id="rst_addr1" th:text="${rst_addr1}"></span>
+							<!-- <br>
+                            <span id="howfar">현위치에서 10m</span> -->
+						</div>
+					</div>
+					<div id="phone_info">
+						<img th:src="@{/images/phone.png}" alt="phone"
+							style="height: 26px; margin-right: 7px;"> <span
+							id="phoneInfo" th:text="${rst_phone}"></span>
+					</div>
+				</div>
+				<hr>
+				<!-- <div class="menu"></div>
+                <hr>
+                -->
+				<div class="reviews">
+					<div class="bar">
+						<h4 id="total_count">[[${rev_all_count}]]건의 리뷰</h4>
+						<button class="write_rev">
+							<img th:src="@{/images/writeicon.png}" alt="star_empty"
+								style="height: 18px; margin-bottom: 3px;"> <span>리뷰
+								남기기</span>
+						</button>
+					</div>
+					<div class="review">
+						<div th:each="revTempDTO, rindex : ${revTempDTOList}">
+							<div class="user_info">
+								<img th:src="@{/images/user.png}" alt="location"
+									style="height: 70px; margin-right: 6px;">
+								<div style="margin-top: 5px;">
+									<span class="nickname" th:text="${revTempDTO.nickname}"></span><br>
+									<div class="stars">
+										<div class="rating">
+											★★★★★ <span class="rating_star"
+												th:style="'width: ' + (${revTempDTO.rev_star} * 20) + '% !important;'">★★★★★</span>
+											<input type="range" value="1" step="1" min="0" max="10">
+										</div>
+									</div>
+									<span class="rev_date"
+										th:text="${#dates.format(revTempDTO.rev_date, 'yyyy-MM-dd')}"></span>
+								</div>
+							</div>
+							<div class="rev_content">
+								<div class="rtitle">
+									리뷰 제목: <span id="rev_title" th:text="${revTempDTO.rev_title}"></span>
+								</div>
+								<div class="rev_comment" th:text="${revTempDTO.rev_comment}"></div>
+								
+								<div class="rev_photo">
+									<ul th:if="${revTempDTO.attachList != null and revTempDTO.attachList.size() > 0}">
+										<li th:each="attach, index : ${revTempDTO.attachList}" 
+											th:name="'attachList_' + ${rindex.index} + '_' + ${index.index}"
+											th:id="'attachList_' + ${rindex.index} + '_' + ${index.index}">
+											<img th:src="${attach.uploadFilePath}" alt="리뷰사진" style="height: 150px;">
+										</li>
+									</ul>
+									
+								</div>
+
+
+								<br>
+								<!-- <button class="rev_like">공감</button> -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		
+	</script>
+	<!-- </body> 위에 삽입되는 공통 부분 추가하는 코드 -->
+	<div th:insert="~{include/footer.html}"></div>
+</body>
+</html>

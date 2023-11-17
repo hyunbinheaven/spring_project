@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="RstMapper">
+
+
+<select id="getAllRestaurants" resultType="com.food.exp.dto.RstDTO">
+    SELECT * FROM restaurant
+</select>
+
+<insert id="insertOrUpdateRestaurant" >
+MERGE INTO restaurant r
+  USING dual ON (r.rst_id = '${rst_id}')
+  WHEN MATCHED THEN
+    UPDATE SET
+    rst_name = '${rst_name}',
+    rst_addr1 = '${rst_addr1}',
+    rst_addr2 = '${rst_addr2}',
+    rst_phone = '${rst_phone}',
+    rst_cate = '${rst_cate}',
+    rst_x = '${rst_x}',
+    rst_y = '${rst_y}'
+  WHEN NOT MATCHED THEN
+    INSERT (rst_id, rst_name, rst_addr1, rst_addr2, rst_phone, rst_cate, rst_x, rst_y)
+    VALUES ('${rst_id}', '${rst_name}', '${rst_addr1}', '${rst_addr2}', '${rst_phone}', '${rst_cate}', '${rst_x}', '${rst_y}')
+</insert>
+
+<select id="selectRestaurantById" resultType="com.food.exp.dto.RstDTO">
+    SELECT * FROM restaurant
+    WHERE rst_id = #{rst_id}
+</select>
+
+
+<update id="updateAvgStar">
+UPDATE restaurant
+SET rev_star_avg=#{rev_star_avg}
+WHERE rst_id=#{rst_id}
+
+</update>
+
+
+
+
+
+
+
+</mapper>

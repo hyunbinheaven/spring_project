@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+    <!-- 공통적으로 들어가는 부분 가져오는 코드 -->
+    <head th:insert="~{include/head.html}"></head>
+
+    <!-- 타이틀 수정 및 자기 html의 head에 추가한 것 추가하기 -->
+    <title>먹스플로어</title>
+
+    <link th:href="@{/css/rev.css}" rel="stylesheet" />
+    <link th:href="@{/css/sidebar.css}" rel="stylesheet" />
+
+    </head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <script>
+ 
+        function searchRev() {
+            var keyword = $('#keyword').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '/foodexp/mypage/searchRev?keyword=' + keyword,
+	            success: function (data) {
+	                $('#reviewTable > tbody').empty();
+	                $('.revPage').empty();
+	                console.log(data);
+	
+	                data.forEach(function (review) {
+	                    var date = new Date(review.rev_date);
+	                    var formattedDate = date.getFullYear() + '-' + ('0' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + date.getDate()).slice(-2);
+	                    var newRow = '<tr>';
+	                    newRow += '<td><input type="checkbox" class="row-checkbox"></td>';
+	                    newRow += '<td><a href="/foodexp/rst/rst_detail?rst_id=' + review.rst_id + '">' + review.rst_name + '</a></td>';
+	                    newRow += '<td><a href="/foodexp/mypage/revedit?rev_no=' + review.rev_no + '">' + review.rev_title + '</a></td>';
+	                    newRow += '<td>' + formattedDate + '</td>';
+	                    newRow += '</tr>';
+	                    $('#reviewTable tbody').append(newRow);
+	                });
+	            },
+	            error: function (error) {
+	                console.error('Error:', error);
+	            }
+	        });
+	    }
+        
+        $(function() {
+            var chkObj = $("input.RowCheck");
+            var rowCnt = chkObj.length;
+
+            $("input#allCheck").click(function() {
+                $("input.RowCheck").prop('checked', this.checked);
+            });
+
+            $("input.RowCheck").click(function() {
+                if ($("input.RowCheck:checked").length === rowCnt) {
+                    $("input#allCheck").prop('checked', true);
+                } else {
+                    $("input#allCheck").prop('checked', false);
+                }
+            });
+        });
+    
+        function delSelect() {
+            var url = "/foodexp/mypage/delSelect";
+            var valueArr = new Array();
+            var list = $("input.RowCheck");
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].checked) {
+                    valueArr.push(list[i].value);
+                    console.log(list[i].value);
+                }
+            }
+            if (valueArr.length === 0) {
+                alert("선택된 글이 없습니다.");
+            } else {
+                var chk = confirm("삭제하시겠습니까?");
+                if (chk) {
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        traditional: true,
+                        data: {
+                            valueArr: valueArr
+                        },
+                        success: function (jdata) {
+                            if (jdata = 1) {
+                            	alert("삭제되었습니다.");
+                                location.replace("/foodexp/mypage/rev")
+                            } else {
+                                alert("삭제 실패");
+                            }
+                        }
+                    });
+                }
+            }
+        }
+     	
+    </script>
+
+    <body>
+        <!-- Navigation-->
+        <nav th:insert="~{include/nav.html}"></nav>
+        
+        <div class="contentbox">
+            <div id="backgroundbanner"></div>
+            <div class="bodycontent" style="display: flex;">
+
+			<nav th:insert="~{include/sidebar.html}"></nav>
+				<div class="content">
+                <h2 style="text-align: left;">리뷰 관리</h2>
+                <div class="search-bar">
+				    <input type="text" id="keyword" name="keyword" placeholder="식당명 검색">
+				    <button type="button" onclick="searchRev()">검색</button>
+				    <div class="delete-button">
+				        <button type="button" id="delBtn" onclick="delSelect()">선택 삭제</button>
+				    </div>
+				</div>
+                <div class="table-wrapper" id="reviewTableWrapper">
+                <table class="data-table" id="reviewTable">
+		            <thead>
+		                <tr>
+		                    <th><input type="checkbox" id="allCheck" name="allCheck"></th>
+		                    <th>식당명</th>
+		                    <th>제목</th>
+		                    <th>작성일</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                <tr th:each="review : ${revPageDTO.revlist}">
+						    <td><input type="checkbox" class="RowCheck" name="checkbox" th:value="${review.rev_no}"></td>
+						    <td>
+						    <a th:href="@{/rst/rst_detail(rst_id=${review.rst_id})}"  th:text="${review.rst_name}"></a>
+						    </td>
+						    <td>
+						    <a th:href="@{/mypage/revedit(rev_no=${review.rev_no})}" th:text="${review.rev_title}"></a>
+						    </td>
+						    <td th:text="${#dates.format(review.rev_date, 'yyyy-MM-dd')}"></td>
+						</tr>
+		            </tbody>
+		        </table>
+		        </div>
+		        
+                <div class="revPage" th:if="${revPageDTO.totalNum > 0}">
+    				<div th:each="i : ${#numbers.sequence(1, revPageDTO.totalNum)}">
+        				<span th:if="${i == (revPageDTO.curPage == null or revPageDTO.curPage == 0 ? 1 : revPageDTO.curPage)}"> 
+            				<span th:text="${i}" class="clickpage"></span>
+        				</span> 
+        				<span th:unless="${i == (revPageDTO.curPage == null or revPageDTO.curPage == 0 ? 1 : revPageDTO.curPage)}">
+            				<a th:href="@{/mypage/rev(curPage=${i})}" th:text="${i}" class="page-link"></a>
+        				</span>
+    				</div>
+				</div>
+            </div>
+       </div>
+
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+    </body>
+</html>

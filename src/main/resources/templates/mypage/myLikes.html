@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<head th:insert="~{include/head.html}"></head>
+<title>먹스플로어</title>
+<link th:href="@{/css/sidebar.css}" rel="stylesheet" />
+<link th:href="@{/css/myLikes.css}" rel="stylesheet" />
+</head>
+<body>
+	<nav th:insert="~{include/nav.html}"></nav>
+	<div class="contentbox">
+		<div id="backgroundbanner"></div>
+		<div class="bodycontent" style="display: flex;">
+			<nav th:insert="~{include/sidebar.html}"></nav>
+			<div class="content">
+				<h2 class="myLikes-title">나의 즐겨찾기</h2>
+
+				<div class="rst-box" th:each="likes: ${pageDTO.list}">
+					<div class="like-rst">
+						<input type="hidden" name="rst_id" th:value="${likes.rst_id}" />
+						<img class="food-img" th:each="attach : ${attachList}"
+							 th:src="${attach.uploadFilePath}" th:if="${attach.rst_id == likes.rst_id}">
+						<div class="text-info">
+							<div class="rst-info">
+								<a th:href="@{'/rst/rst_detail?rst_id=' + ${likes.rst_id}}"
+								   class="rstname" th:text="${likes.rst_name}"></a>
+								<p class="rstcate" th:text="${likes.rst_cate}" />
+							</div>
+							<div class="rst-info">
+								<p class="rstaddr" th:text="${likes.rst_addr1}" />
+							</div>
+							<div class="rst-info">
+								<p class="revscore" th:if="${likes.rev_star_avg}">
+									별점 <span th:text="${likes.rev_star_avg+ '/5'}"></span>
+									(<span th:text="${likes.rev_count+ '건)'}"></span>
+								</p>
+								<p class="like-count">
+									즐겨찾기 <span th:text="${likes.likes_total}"></span>
+								</p>
+							</div>
+						</div>
+						<form th:action="@{/mypage/delLikes}" class="star" method="post">
+							<input type="hidden" name="rst_id" th:value="${likes.rst_id}" />
+							<button class="star" id="delstar">
+								<img class="star" th:src="@{/images/star_full.png}" alt="star_full">
+							</button>
+						</form>
+					</div>
+				</div>
+
+				<div class="likesPage" th:if="${pageDTO.totalNum > 0}">
+    				<div th:each="i : ${#numbers.sequence(1, pageDTO.totalNum)}">
+        				<span th:if="${i == (pageDTO.curPage == null or pageDTO.curPage == 0 ? 1 : pageDTO.curPage)}">
+            				<span th:text="${i}" class="clikpage"></span>
+        				</span>
+        				<span th:unless="${i == (pageDTO.curPage == null or pageDTO.curPage == 0 ? 1 : pageDTO.curPage)}">
+            				<a th:href="@{/mypage/myLikes(curPage=${i})}" th:text="${i}" class="page-link"></a>
+        				</span>
+    				</div>
+				</div>
+			</div> <!-- end content -->
+		</div> <!-- end bodycontent -->
+	</div> <!-- end contentbox -->
+
+	<div th:insert="~{include/footer.html}"></div>
+</body>
+</html>

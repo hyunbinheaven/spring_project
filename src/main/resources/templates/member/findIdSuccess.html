@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+    <!-- 공통적으로 들어가는 부분 가져오는 코드 -->
+    <head th:insert="~{include/head.html}"></head>
+
+    <!-- 타이틀 수정 및 자기 html의 head에 추가한 것 추가하기 -->
+    <title>회원가입</title>
+
+    <link th:href="@{/css/find.css}" rel="stylesheet" />
+
+    </head>
+    <body style="overflow: auto;">
+        <!-- Navigation-->
+        <nav th:insert="~{include/nav.html}"></nav>
+
+        
+        <div class="contentbox">
+            <div id="backgroundbanner"></div>
+            <div class="bodycontent" style="padding: 30px 50px; width: 820px;">
+              <h2 class="titletext" >아이디 찾기 결과</h2>
+              <div class="result">
+                <span style="font-size: 22px;">회원님의 아이디:</span> <br>
+                <span style="font-weight: 600;">[[${user_email}]] </span>
+              </div>  
+              <div>
+              <button id="orangebtn" onclick="gofindpw()">비밀번호 찾기</button>
+              <button id="borderbtn" onclick="gologinform()">로그인</button>
+              </div> 
+
+            </div>
+        </div>
+
+        <script type="text/javascript"> 
+          function gofindpw(){            
+            window.location.href = "findPwForm";
+          }
+          function gologinform(){            
+            window.location.href = "loginform";
+          }
+        </script>
+
+      <!-- body 위에 삽입되는 공통 부분 추가하는 코드 -->
+      <div th:insert="~{include/footer.html}"></div>
+    </body>
+</html>

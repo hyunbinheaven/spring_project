@@ -1,0 +1,25 @@
+<nav class="navbar navbar-light bg-light static-top" style="background-color: white;">
+    <div class="container" style="background-color: white; padding: 2px 20px 2px 20px; white-space: nowrap;width: 1375px;margin: auto;">
+        <a class="navbar-brand" th:href="@{/main}">
+            <img class="d-inline-block" th:src="@{/images/food_logo.png}" alt="logo" style="height: 50px;">
+        </a>
+        <form id="searchForm" th:action="@{/rst}" method="POST" class="searchform">
+            <div class="searchbar">
+
+                <input type="text" id="searchinput" name="query" th:value="${searchinput}"placeholder="지역, 음식 또는 식당명 검색">
+                <button id="searchbtn" type="submit"><img th:src="@{/images/searchicon.png}"></button>
+            </div>
+        </form>
+
+        <div class="msection" th:if="${session.login !=null}">
+            <span id="navNickname" style="margin-right: 10px;">[[${session.nickname}]]님 </span>
+            <a th:href="@{/mypage/main}" id="mypagelink">마이페이지</a>
+            <a th:href="@{/member/logout}" id="logout">로그아웃</a>
+        </div>
+        <div class="msection" th:unless="${session.login !=null}">
+            <a th:href="@{/member/loginform}" id="loginlink">로그인</a>
+            <a th:href="@{/member/joinform}" id="joinlink">회원가입</a>
+        </div>
+        
+    </div>
+</nav>

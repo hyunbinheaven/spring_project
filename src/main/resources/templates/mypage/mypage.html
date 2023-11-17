@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<head th:insert="~{include/head.html}"></head>
+<title>먹스플로어</title>
+<link th:href="@{/css/sidebar.css}" rel="stylesheet" />
+<link th:href="@{/css/mypage.css}" rel="stylesheet" />
+<script th:if="${updateMessage}" th:inline="javascript">
+    /*<![CDATA[*/
+    alert([[${updateMessage}]]);
+    /*]]>*/
+</script>
+</head>
+
+<body>
+	<nav th:insert="~{include/nav.html}"></nav>
+	<div class="contentbox">
+		<div id="backgroundbanner"></div>
+		<div class="bodycontent" style="display: flex;">
+			<nav th:insert="~{include/sidebar.html}"></nav>
+			<div class="content">
+			
+				<div class="hello-box">
+					<img class="hello-boxlogo" th:src="@{/images/foodexplore_icon.png}">
+					<h2 class="hello-boxtext">
+						안녕하세요! <span class="hellonick" th:text="${MemberDTO.nickname}"></span>님
+					</h2>
+				</div>
+				
+				<div class="memberInfo">
+					<div class="memberInfo-body">
+						<div class="row">
+							<label for="nick" class="memberInfo-title">닉네임</label> 
+							<input type="text" required th:value="${MemberDTO.nickname}"
+								   id="nickname" class="design shape" readonly>
+						</div>
+						<div class="row">
+							<label for="user_email" class="memberInfo-title">아이디</label> 
+							<input type="text" required th:value="${MemberDTO.user_email}"
+								   id="user_email" class="design shape" readonly>
+						</div>
+						<div class="row name">
+							<label for="user_name" class="memberInfo-title">이름</label> 
+							<input type="text" required th:value="${MemberDTO.user_name}"
+								   id="user_name" class="design shape" readonly>
+						</div>
+						<div class="row phone">
+							<label for="user_phone" class="memberInfo-title">휴대폰 번호</label> 
+							<input type="text" required th:value="${MemberDTO.user_phone}"
+								   id="user_phone" class="design shape" readonly>
+						</div>
+						<div class="row post">
+							<label for="user_post" class="memberInfo-title">우편번호</label> 
+							<input type="text" required th:value="${MemberDTO.user_post}"
+								   id="user_post" class="design shape" readonly>
+						</div>
+						<div class="row address">
+							<label for="user_addr" class="memberInfo-title">주소</label> 
+							<input type="text" required th:value="${MemberDTO.user_addr1}"
+								   id="user_addr1" class="design shape" readonly>
+							<input type="text" required th:value="${MemberDTO.user_addr2}"
+								   id="user_addr2" class="design shape" readonly>
+						</div>
+						<a class="changeInfo-btn" th:href="@{/mypage/changeInfo}">회원정보 수정</a>
+					</div>
+				</div>
+
+				<div class="like-review">
+				
+					<div class="mylist-box">
+						<div class="title-util">
+							<h2 class="title-name">나의 즐겨찾기</h2>
+							<a th:href="@{/mypage/myLikes}" class="more" title="더보기">더보기 ></a>
+						</div>
+						<div class="mylike-list">
+							<ul class="list-uibox">
+								<li th:each="likes, limit: ${pageDTO.list}" th:if="${limit.index < 3}">
+									<div class="like-rst">
+										<div class="rstrst">
+											<img class="likestar" th:src="@{/images/likestar.png}">
+											<div class="rst-info">
+												<p class="rstname" th:text="${likes.rst_name}" />
+												<div class="rst-rev">
+													<p class="revscore" th:if="${likes.rev_star_avg}">
+														별점 <span th:text="${likes.rev_star_avg+ '/5'}"></span>
+														(<span th:text="${likes.rev_count+ '건)'}"></span>
+													</p>
+													<p class="rstaddr" th:text="${likes.rst_addr1}" />
+												</div>
+											</div>
+										</div>
+									</div>
+								</li>
+								<li th:if="${pageDTO.list.isEmpty()}">
+            						<p class="nolikes">즐겨찾기가 없습니다.</p>
+        						</li>
+							</ul>
+						</div>
+					</div>
+
+					<div class="mylist-box">
+						<div class="title-util">
+							<h2 class="title-name">리뷰 관리</h2>
+							<a th:href="@{/mypage/rev}" class="more" title="더보기">더보기 ></a>
+						</div>
+						<div class="myrev-list">
+							<ul class="list-uibox">
+								<li th:each="revs, limit: ${RevDTO}" th:if="${limit.index < 3}">
+									<div class="rev-list">
+									<div class="rstrst">
+											<p class="revcircle">
+												<img class="revicon" th:src="@{/images/revlist.png}">
+											</p>
+										<div class="rst-info">
+											<p class="rstname" th:text="${revs.rst_name}" />
+											<div class="rst-rev">
+												<p class="revscore">
+													별점 <span th:text="${revs.rev_star+ '/5'}"></span>
+												</p>
+												<p class="revdate"
+													th:text="${#dates.format(revs.rev_date, 'yyyy-MM-dd')}" />
+											</div>
+										</div>
+										</div>
+										<p class="revcontent" th:text="${revs.rev_comment}" />
+									</div>
+								</li>
+								<li th:if="${RevDTO.isEmpty()}">
+            						<p class="norev">작성한 리뷰가 없습니다.</p>
+        						</li>
+							</ul>
+						</div>
+					</div>
+				</div> <!-- end like-review -->
+			</div> <!-- end content -->
+		</div> <!-- end bodycontent -->
+	</div> <!-- end contentbox -->
+
+	<div th:insert="~{include/footer.html}"></div>
+</body>
+</html>

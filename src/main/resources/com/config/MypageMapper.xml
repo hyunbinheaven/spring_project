@@ -1,0 +1,105 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MypageMapper">
+
+   <!-- 회원 정보 가져오기 -->
+   <select id="getInfo" parameterType="String" resultType="MemberDTO">
+    select user_email,nickname,pw,user_name,
+ 		   user_post,user_addr1,user_addr2,user_phone
+    from member
+    where user_email = #{user_email}
+   </select>
+   
+   <!-- 회원정보 수정 -->
+   <update id="changeInfo" parameterType="MemberDTO">
+   	update member
+   	set user_email = #{user_email}, nickname  = #{nickname},
+   		pw  = #{pw},user_name  = #{user_name},
+ 	   	user_post  = #{user_post}, user_addr1 = #{user_addr1}, 
+ 	   	user_addr2  = #{user_addr2}, user_phone  = #{user_phone}
+    where user_email = #{user_email}
+   </update>
+   
+   <!-- 회원탈퇴 -->
+   <delete id="delMember" parameterType="String" >
+   	delete from member
+   	where user_email = #{user_email}
+   </delete>
+
+	<!-- 즐겨찾기 정보 가져오기(총합까지) -->
+	<select id="getLikes" parameterType="String" resultType="LikesDTO">
+	select rst.rst_id, rst.rst_name, rst.rst_addr1, rst.rst_cate, rst.rev_star_avg,
+		   rst.rst_x, rst.rst_y, l.likes_date,
+		   (select count(*) 
+       	    from likes 
+            where likes.rst_id = rst.rst_id) as likes_total,
+           (select count(*) 
+        	from review 
+        	where rst_id = rst.rst_id) as rev_count
+	from restaurant rst
+	inner join likes l on rst.rst_id = l.rst_id
+	where l.user_email = #{user_email}
+	order by l.likes_date DESC
+   </select>
+   
+   <!-- 즐겨찾기 페이지 -->
+   <select id="totalCount" resultType="int">
+     select count(*)
+     from likes
+     where user_email = #{user_email}
+   </select>
+   
+   <!-- 즐겨찾기 삭제 -->
+   <delete id="delLikes" parameterType="String" >
+   	delete from likes
+   	where rst_id = #{rst_id}
+   		  and user_email = #{user_email}
+   </delete>
+   
+   <!-- 즐겨찾기 추가 -->
+   <insert id="addLikes" parameterType="LikesDTO">
+    insert into likes (user_email, rst_id, likes_date)
+    values ( #{user_email}, #{rst_id}, sysdate)
+   </insert>
+   
+   <!-- 즐겨찾기 상태 체크 -->
+   <select id="isLiked" parameterType="String" resultType="int">
+    select case when count(*) > 0 then 1 else 0 end as isLiked
+    from likes
+    where user_email = #{user_email}
+          and rst_id = #{rst_id}
+    </select>
+    
+    <!-- 즐겨찾기 총합 가져오기 -->
+	<select id="getLikesTotal" parameterType="String" resultType="LikesDTO">
+     select rst_id, count(*) as likes_total
+     from likes
+     where rst_id = #{rst_id}
+     group by rst_id
+   	</select>
+   	
+   	<!-- 즐겨찾기 정보 지도에 가져오기 -->
+   	<select id="getLikesMap" parameterType="String" resultType="LikesDTO">
+     select rst.rst_id, rst.rst_name, rst.rst_addr1, rst.rst_x, rst.rst_y,
+        	rst.rev_star_avg, (select count(*) 
+        	 				   from review 
+        	 				   where rst_id = rst.rst_id) as rev_count
+     from likes l
+     inner join restaurant rst on rst.rst_id = l.rst_id
+     where user_email = #{user_email}
+   	</select>
+   
+   <!-- 리뷰 정보 가져오기 -->
+   <select id="getRev" parameterType="String" resultType="RevDTO">
+    select rst.rst_id, rst.rst_name, rev.rev_star, rev.rev_no,
+    	   rev.user_email, rev.rev_date, rev.rev_comment
+	from restaurant rst
+	inner join review rev
+	on rst.rst_id = rev.rst_id
+	where rev.user_email = #{user_email}
+	order by rev.rev_no DESC
+   </select>
+   
+</mapper>

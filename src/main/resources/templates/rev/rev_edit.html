@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- 공통적으로 들어가는 부분 가져오는 코드 -->
+    <head th:insert="~{include/head.html}"></head>
+
+    <!-- 타이틀 수정 및 자기 html의 head에 추가한 것 추가하기 -->
+    <title>먹스플로어</title>
+
+    <link th:href="@{/css/rev_edit.css}" rel="stylesheet" />
+    <link th:href="@{/css/sidebar.css}" rel="stylesheet" />
+    <link th:href="@{/css/upload.css}" rel="stylesheet" />
+
+    <!-- <link th:href="@{/css/rev_edit.css}" rel="stylesheet" /> -->
+
+    <script type="text/javascript" th:src="@{/js/upload.js}"></script>
+
+</head>
+
+<script>
+
+    $(document).ready(function () {
+        // delbtn을 클릭할 때
+        $(".delbtn").on("click", function () {
+            console.log("del");
+            // 현재 클릭한 li 요소 선택
+            var liElement = $(this).closest("li");
+
+            // 리뷰 사진과 버튼 삭제
+            liElement.find("img").remove();
+            liElement.find(".delbtn").remove();
+
+            liElement.find("input[name='photo']").attr("name", "delfile");
+			
+        });
+    });
+    
+    function updateStarValue() {
+        var stars = document.querySelectorAll('.star');
+        var ratingInput = document.getElementById('starInput');
+
+        stars.forEach(star => {
+          star.addEventListener('click', function() {
+            var value = this.getAttribute('data-value');
+            stars.forEach((star, index) => {
+              if (5 - index <= value) {
+                stars[index].classList.add('active');
+              } else {
+                stars[index].classList.remove('active');
+              }
+            });
+            ratingInput.value = value;
+          });
+        });
+    }
+
+    window.onload = function() {
+        updateStarValue();
+
+        var initialRating = document.getElementById('starInput').value;
+        var stars = document.querySelectorAll('.star');
+        stars.forEach((star, index) => {
+          if (5 - index <= initialRating) {
+            stars[index].classList.add('active');
+          }
+        });
+    };
+    
+    function confirmEdit() {
+	    if(confirm('수정하시겠습니까?')) {
+	        alert('수정되었습니다.');
+	        return true;
+	    }
+	    return false;
+	}
+	
+	function confirmDelete() {
+        if(confirm('삭제하시겠습니까?')) {
+            alert('삭제되었습니다.');
+            return true;
+        }
+        return false;
+    }
+
+</script>
+
+<body>
+    <!-- Navigation-->
+    <nav th:insert="~{include/nav.html}"></nav>
+
+    <div class="contentbox">
+        <div id="backgroundbanner"></div>
+        <div class="bodycontent" style="display: flex;">
+
+            <nav th:insert="~{include/sidebar.html}"></nav>
+
+            <div class="content">
+                <h2 style="text-align: left;">리뷰 수정</h2>
+                <div style="text-align: left;">
+                    <div>
+                        <h1 th:text="${review.rst_name}"></h1>
+                        <br>
+                        <form th:object="${review}" th:action="@{/mypage/update}" method="post" onsubmit="return confirmEdit();">
+                            <div>
+                                <input type="text" th:field="*{rev_title}" />
+                            </div>
+                            <div class="star-rating">
+							    <span class="star" data-value="5">&#9733;</span>
+							    <span class="star" data-value="4">&#9733;</span>
+							    <span class="star" data-value="3">&#9733;</span>
+							    <span class="star" data-value="2">&#9733;</span>
+							    <span class="star" data-value="1">&#9733;</span>
+							</div>
+							<div>
+								<span th:text="${#dates.format(review.rev_date, 'yyyy-MM-dd')}"></span>
+							</div>
+							<input type="hidden" th:field="*{rev_star}" name="rev_star" id="starInput" />
+                            <div>
+                                <textarea rows="6" cols="50" th:field="*{rev_comment}"></textarea>
+                            </div>
+                            <input type="hidden" th:field="*{rev_no}" />
+                            <input type="hidden" th:field="*{rst_name}" />
+                            <input type="hidden" th:field="*{rst_id}" />
+
+                            <div class="uploadResult">
+                                <ul th:if="${review.attachList != null and review.attachList.size() > 0}">
+                                    <li th:each="attach, index : ${review.attachList}" th:name="'attachList_' + ${index.index}"
+                                        th:id="'attachList_' + '_' + ${index.index}">
+                                        <button class="delbtn" type="button">
+                                            <img class="delimg" th:src="@{/images/xbtn.png}" alt="">
+                                        </button>
+                                        <img th:src="${attach.uploadFilePath}" alt="리뷰사진" style="height: 150px;">
+                                        <input type="hidden" class="uploadedFile" th:value="${attach.uploadFileName}" name="photo">
+                                    </li>
+                                </ul>
+
+                            </div>
+                            <div class="button-container">
+                            <button type="submit" id="editBtn">수정</button>
+                        </form>
+
+                        <br>
+                        <form th:action="@{/mypage/delete}" method="post" id="deleteForm" onsubmit="return confirmDelete();">
+                            <input type="hidden" name="rev_no" th:value="${review.rev_no}" />
+                            <input type="hidden" name="rst_id" th:value="${review.rst_id}" />
+
+                            <button type="submit" style="margin-left: 20px;" id="delBtn">삭제</button>
+
+                            <div th:if="${review.attachList != null and review.attachList.size() > 0}">
+                                <input th:each="attach : ${review.attachList}" type="hidden" class="uploadedFile" th:value="${attach.uploadFileName}" name="delfile">
+                            </div>
+                        </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+    </div>
+</body>
+
+</html>

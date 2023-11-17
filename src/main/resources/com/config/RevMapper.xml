@@ -1,0 +1,94 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="RevMapper">
+	
+	<!-- 내 리뷰 -->
+	<select id="getReviewById" resultType="RevDTO" parameterType="string">
+        SELECT r.*, rt.rst_name 
+	    FROM review r
+	    INNER JOIN restaurant rt ON r.rst_id = rt.rst_id
+	    WHERE r.user_email = #{user_email, jdbcType=VARCHAR}
+	    ORDER BY r.rev_date DESC
+    </select>
+    
+    <!-- 리뷰 카운트 -->
+    <select id="totalCount" resultType="int">
+    	select count(*)
+   		from review
+    	where user_email = #{user_email}
+    </select>
+   
+	<!-- 리뷰 검색 -->
+    <select id="searchRev" resultType="RevDTO">
+	    SELECT r.*, rt.rst_name as rst_name
+	    FROM review r
+	    INNER JOIN restaurant rt ON r.rst_id = rt.rst_id
+	    WHERE rt.rst_name LIKE '%' || '${keyword}' || '%' and r.user_email = '${user_email}'
+	    ORDER BY r.rev_date DESC
+	</select>
+    
+    <!-- 리뷰 자세히 보기 -->
+    <select id="selectByRev_No" resultType="RevDTO" parameterType="int">
+    	SELECT r.*, rt.rst_name 
+	    FROM review r
+	    INNER JOIN restaurant rt ON r.rst_id = rt.rst_id
+	    WHERE r.REV_NO = #{rev_no}
+	</select>
+    
+	<!-- 리뷰 추가 -->
+    <insert id="addReview" parameterType="RevDTO">
+	    INSERT INTO review (REV_NO, USER_EMAIL, RST_ID, REV_STAR, REV_COMMENT, REV_DATE, REV_TITLE) 
+	    VALUES (rev_seq.nextval, #{user_email, jdbcType=VARCHAR}, #{rst_id, jdbcType=VARCHAR}, 
+	            #{rev_star}, #{rev_comment, jdbcType=VARCHAR}, sysdate, #{rev_title, jdbcType=VARCHAR})
+	</insert>
+    
+	<!-- 리뷰 수정 -->
+    <update id="updateReview" parameterType="RevDTO">
+        UPDATE review SET REV_STAR = #{rev_star}, REV_COMMENT = #{rev_comment, jdbcType=VARCHAR}, REV_TITLE = #{rev_title, jdbcType=VARCHAR}
+        WHERE REV_NO = #{rev_no}
+        and  USER_EMAIL = #{user_email,jdbcType=VARCHAR}
+    </update>
+
+	<!-- 리뷰 삭제 -->
+    <delete id="deleteReview" parameterType="int">
+        DELETE FROM review WHERE REV_NO = #{rev_no}
+    </delete>
+    
+    <!-- 선택된 항목 삭제 -->
+	<delete id="delSelect" parameterType="java.util.List">
+	    DELETE FROM review WHERE REV_NO IN
+	    <foreach item="item" collection="list" open="(" separator="," close=")">
+	        #{item}
+	    </foreach>
+	</delete>
+    
+    <!-- 식당별 리뷰 -->
+    <select id="revByRst" resultType="RstDTO" parameterType="String">
+	    select restaurant.*, review.*
+		from restaurant
+		inner join review on restaurant.rst_id = review.rst_id
+		where review.user_email = #{user_email}
+    </select>
+    
+    <!-- 식당의 모든 리뷰 & 날짜 형식 변경하여 가져오기 -->
+    <select id="getreviewByRst" resultType="RevTempDTO">
+		SELECT review.*, member.nickname
+		FROM review
+		JOIN member ON review.user_email = member.user_email
+		WHERE review.rst_id = #{rst_id}
+		ORDER BY review.rev_no DESC
+    </select>
+    
+    <!-- 리뷰 등록, 수정, 삭제 시 식당 평균 별점 업데이트 -->
+    <update id="updateAvgStar">
+    	update restaurant
+			set 
+			rev_star_avg = (select NVL( avg(rev_star),0)
+			                from review 
+			                where rst_id = #{rst_id})
+			where rst_id =  #{rst_id}
+    </update>
+
+</mapper>

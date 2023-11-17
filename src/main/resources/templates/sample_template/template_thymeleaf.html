@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+    <!-- 공통적으로 들어가는 부분 가져오는 코드 -->
+    <head th:insert="~{include/head.html}"></head>
+
+    <!-- 타이틀 수정 및 자기 html의 head에 추가한 것 타임리프 형식으로 추가하기 -->
+    <!-- 예시: <link th:href="@{/css/header.css}" rel="stylesheet" /> -->
+    <title>Landing Page - Start Bootstrap Theme</title>
+
+    </head>
+    <body>
+        <!-- Navigation-->
+        <nav th:insert="~{include/nav.html}"></nav>
+
+        <div class="contentbox">
+            <div id="backgroundbanner"></div>
+            <div class="bodycontent">
+             
+            <!-- 이곳에서 코드 작업 -->
+
+
+            </div>
+        </div>
+
+        <!-- </body> 위에 삽입되는 공통 부분 추가하는 코드 -->
+        <div th:insert="~{include/footer.html}"></div>
+
+    </body>
+</html>

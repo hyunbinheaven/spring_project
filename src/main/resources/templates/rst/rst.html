@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- 공통적으로 들어가는 부분 가져오는 코드 -->
+
+	<head th:insert="~{include/head.html}"></head>
+
+	<!-- 타이틀 수정 및 자기 html의 head에 추가한 것 타임리프 형식으로 추가하기 -->
+	<!-- 예시: <link th:href="@{/css/header.css}" rel="stylesheet" /> -->
+	<title>먹스플로어</title>
+
+	<!--  kakao Map API & CSS -->
+	<script
+		th:src="'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${apiKey}+'&libraries=services,clusterer,drawing'"></script>
+
+	<link th:href="@{/css/rst.css}" rel="stylesheet" />
+</head>
+
+<body>
+	<!-- Navigation-->
+	<nav th:insert="~{include/nav.html}"></nav>
+
+	<div class="contentbox">
+		<div id="backgroundbanner"></div>
+		<div id="bodycontent" class="bodycontent">
+			<div class="_01_all">
+				<!-- kakao Map API UI -->
+				<br />
+				<div style="
+              font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;
+              font-weight: 700;
+              font-size: 24px;
+              float: left;
+            ">
+					음식점 검색 결과
+				</div>
+
+				<div class="menu_cate">
+					<input type="radio" id="select0" name="shop" checked/><label for="select0">전체</label>
+					<input type="radio" id="select1" name="shop" /><label for="select1">한식</label>
+					<input type="radio" id="select2" name="shop" /><label for="select2">치킨</label>
+					<input type="radio" id="select3" name="shop" /><label for="select3">양식</label>
+					<input type="radio" id="select4" name="shop" /><label for="select4">분식</label>
+					<input type="radio" id="select5" name="shop" /><label for="select5">중식</label>
+					<input type="radio" id="select6" name="shop" /><label for="select6">일식</label>
+					<input type="radio" id="select7" name="shop" /><label for="select7">카페</label>
+					<input type="radio" id="select8" name="shop" /><label for="select8">간식</label>
+					<input type="radio" id="select9" name="shop" /><label for="select9">아시아음식</label>
+					<input type="radio" id="select10" name="shop" /><label for="select10">술</label>
+					<input type="radio" id="select11" name="shop" /><label for="select11">뷔페</label>
+					<input type="radio" id="select12" name="shop" /><label for="select12">퓨전요리</label>
+					<input type="hidden" id="selectedCate" name="selectedCate" />
+				</div>
+
+				<div id="menu_wrap" class="bg_white">
+					<div class="option">
+						<div>
+							<form onsubmit="searchPlaces(); return false;">
+								<div style="display: inline-block;font-size: 17px;margin-right: 10px;">
+									위치 필터 |
+								</div>
+								
+								<label class="custom-radio"><input type="radio" class="custom-radio" name="searchType"
+										value="myLocation" onclick="searchPlaces()" />
+									내위치</label>
+								<label class="custom-radio"><input type="radio" class="custom-radio" name="searchType"
+										value="nationwide" onclick="searchPlaces()" />
+									전국</label>
+								<label class="custom-radio"><input type="radio" class="custom-radio" name="searchType"
+										value="myMap" onclick="searchPlaces()" />
+									지도범위 검색</label>
+								<input type="hidden" id="inputLoadSelector" th:value="${inputLoadSelector}" readonly />
+							</form>
+						</div>
+					</div>
+
+					<!-- 여기에 전국일경우 디자인 추가하기-->
+					<div>
+						<select id="h_area1" name="h_area1" >
+							<option value="">-광역시도-</option>
+						</select>
+						<select id="h_area2" name="h_area2" >
+							<option value="">-시군구-</option>
+						</select>
+						<select id="h_area3" name="h_area3" >
+							<option value="">-읍면동-</option>
+						</select>
+
+
+
+						<input type="hidden" id="h_area1_1" th:value="${h_area1}" readonly />
+						<input type="hidden" id="h_area2_1" th:value="${h_area2}" readonly />
+						<input type="hidden" id="h_area3_1" th:value="${h_area3}" readonly />
+					</div>
+
+
+					<script th:src="@{/js/region.js}" type="text/javascript"></script>
+
+
+					<!-- 전국 -->
+				</div>
+
+				<div class="_01_01_main">
+					<div class="map_wrap">
+						<div id="map" style="
+                  width: 100%;
+                  height: 100%;
+                  position: relative;
+                  overflow: hidden;
+                "></div>
+					</div>
+					<div class="_01_01_01_sub">
+						<ul id="placesList"></ul>
+						<div id="pagination"></div>
+					</div>
+
+					<!-- 이곳에서 코드 작업 -->
+					<!-- kakao Map Script -->
+
+					<script type="text/javascript" th:src="@{/js/rst.js}"></script>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		$(document).ready(function () {
+			// 라디오 버튼의 변경 이벤트를 감지하고 선택한 값을 hidden 요소에 설정
+			$("input[type='radio'][name='shop']").change(function () {
+				var selectedId = $("input[type='radio'][name='shop']:checked").attr(
+					"id"
+				);
+				// var selectedLabelFor = $("input[type='radio'][name='shop']:checked").next("label").attr("for");
+
+				// 선택한 id 출력
+				console.log("선택한 id: " + selectedId);
+
+				// 선택한 label의 "for" 속성값 출력
+				// console.log("선택한 label for: " + selectedLabelFor);
+
+				// 선택한 값을 hidden 요소에 설정
+				$("#selectedCate").val(selectedId);
+				searchPlaces();
+			});
+		});
+	</script>
+
+	<!-- </body> 위에 삽입되는 공통 부분 추가하는 코드 -->
+	<div th:insert="~{include/footer.html}"></div>
+</body>
+
+</html>

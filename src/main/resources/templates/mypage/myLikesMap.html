@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<head th:insert="~{include/head.html}"></head>
+<title>먹스플로어</title>
+<link th:href="@{/css/myLikesMap.css}" rel="stylesheet" />
+<link th:href="@{/css/sidebar.css}" rel="stylesheet" />
+</head>
+<body>
+	<nav th:insert="~{include/nav.html}"></nav>
+	<div class="contentbox">
+		<div id="backgroundbanner"></div>
+		<div class="bodycontent" style="display: flex;">
+			<nav th:insert="~{include/sidebar.html}"></nav>
+			<div class="content">
+			
+				<div th:each="likes : ${likesDTO}">
+					<input type="hidden" class="rstid" th:value="${likes.rst_id}" />
+					<input type="hidden" class="rstname" th:value="${likes.rst_name}" />
+					<input type="hidden" class="rstaddr" th:value="${likes.rst_addr1}" />
+					<input type="hidden" class="revstaravg" th:value="${likes.rev_star_avg}" />
+					<input type="hidden" class="revcount" th:value="${likes.rev_count}" />
+					<input type="hidden" class="rstx" th:value="${likes.rst_x}" />
+					<input type="hidden" class="rsty" th:value="${likes.rst_y}" />
+				</div>
+
+				<div id="map" class="likesmap"></div>
+				<script th:src="'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${apiKey}+'&libraries=services,clusterer,drawing'"></script>
+				<script th:src="@{/js/myLikesMap.js}" type="text/javascript"></script>
+
+			</div> <!-- content -->
+		</div> <!-- bodycontent -->
+	</div> <!-- contentbox -->
+	<div th:insert="~{include/footer.html}"></div>
+</body>
+</html>
